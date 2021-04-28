@@ -55,3 +55,6 @@ politicos = [ Politico ["ser libres", "libre estacionamiento coches politicos", 
 --b)  alguno que haya presentado más de 3 proyectos
 -- find' ((>3).length.proyectosPresentados) politicos
 
+--c) alguno que haya presentado algún proyecto que tenga más de 3 palabras
+--find' (any ((>3).length.words).proyectosPresentados) politicos
+
