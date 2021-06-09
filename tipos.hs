@@ -30,6 +30,7 @@ data Animal= Raton {nombre :: String, edad :: Float, peso :: Float, enfermedades
 enfermedadesInfecciosas = [ "brucelosis", "tuberculosis"]
 
 cerebro = Raton "Cerebro" 9.0 0.2 ["brucelosis", "sarampión", "tuberculosis"]
+orejudo = Raton "Orejudo" 4.0 10.0 ["obesidad", "sinusitis"]
 
 modificarEdad f raton = raton {edad = (f. edad) raton }
 
@@ -61,18 +62,34 @@ medicamento hierbas unRaton = foldl (flip ($))  unRaton  hierbas
 {-*Main> medicamento [alcachofa, (hierbaVerde "tuberculosis") ] cerebro
 Raton {nombre = "Cerebro", edad = 9.0, peso = 0.19, enfermedades = ["brucelosis","sarampi\243n"]} -}
 
-antiAge :: Animal -> Animal
+type Medicamento = Animal -> Animal
+antiAge :: Medicamento
 antiAge unRaton =  medicamento (replicate 3 hierbaBuena ++ [alcachofa]) unRaton
 
 
-reduceFatFast :: Int -> Animal -> Animal
+reduceFatFast :: Int -> Medicamento
 reduceFatFast potencia unRaton = medicamento ([hierbaVerde "obesidad"] ++ (replicate potencia alcachofa)) unRaton
 
 {-*Main> reduceFatFast 4 cerebro
 Raton {nombre = "Cerebro", edad = 9.0, peso = 0.16290124, enfermedades = ["brucelosis","sarampi\243n","tuberculosis"]}
 -}
 
-hierbaMilagrosa :: Animal -> Animal
+hierbaMilagrosa :: Medicamento
 hierbaMilagrosa unRaton = foldr hierbaVerde unRaton  enfermedadesInfecciosas
 {-*Main> hierbaMilagrosa cerebro
 Raton {nombre = "Cerebro", edad = 9.0, peso = 0.2, enfermedades = ["sarampi\243n"]} -}
+
+cantidadIdeal condicion = head.filter condicion $ [1..]
+
+
+estanMejoresQueNunca :: [Animal] -> Medicamento -> Bool
+estanMejoresQueNunca ratones unMedicamento = all ((<1).peso.unMedicamento) ratones
+
+{-*Main> estanMejoresQueNunca [cerebro, orejudo] hierbaMilagrosa
+False -}
+
+experimento ratones = cantidadIdeal (estanMejoresQueNunca ratones.reduceFatFast)
+
+{-*Main> experimento [cerebro,orejudo]
+29 -}
+
